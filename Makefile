@@ -1,9 +1,10 @@
 .PHONY: build
-build:  ## refresh the configs and dags
+build: down ## refresh the configs and dags
 	rm -rf configs/[a-z]/
 	rm -rf dags/[a-z]/
 	python ./build_configs.py
 	python ./build_dags.py
+	docker-compose build
 
 .PHONY: up
 up: # build
