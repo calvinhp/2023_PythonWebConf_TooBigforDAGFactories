@@ -3,21 +3,20 @@ import json
 import logging
 import os
 import re
+import uuid
 from pathlib import Path
 
 import faker as faker
-# from faker.providers import company, internet, file
 
 faker.Faker.seed(0)
 fake = faker.Faker()
-import uuid
+
 
 def main():
     for i in range(1000):
         name = str(fake.company())
-        slug = name.lower().replace(" ","-").replace(",", "-")
-        slug = re.sub(r'-{2,}', '-', slug)
-
+        slug = name.lower().replace(" ", "-").replace(",", "-")
+        slug = re.sub(r"-{2,}", "-", slug)
 
         cfg = {
             "id": f"Config-{i}",
@@ -26,6 +25,7 @@ def main():
             "src_pattern": f"*.{fake.file_extension()}",
             "dest_bucket": f"s3://destination/{uuid.uuid4()}",
             "on_fail_notify": fake.ascii_company_email(),
+            "generations": fake.random.randint(2, 5),
         }
 
         config_file = Path(f"./{slug[0]}/{slug}.json")
@@ -35,6 +35,6 @@ def main():
 
 
 if __name__ == "__main__":
-    LOGLEVEL = os.environ.get('LOGLEVEL', 'WARNING').upper()
+    LOGLEVEL = os.environ.get("LOGLEVEL", "WARNING").upper()
     logging.basicConfig(level=LOGLEVEL)
     main()
