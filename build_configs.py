@@ -13,6 +13,9 @@ fake = faker.Faker()
 
 
 def main():
+    config_root = Path("./configs/")
+    config_root.mkdir(parents=True, exist_ok=True)
+
     for i in range(1000):
         name = str(fake.company())
         slug = name.lower().replace(" ", "-").replace(",", "-")
@@ -31,13 +34,13 @@ def main():
             "on_fail_notify": fake.ascii_company_email(),
         }
 
-        config_file = Path(f"./{slug[0]}/{slug}-full.json")
+        config_file = config_root / Path(f"./{slug[0]}/{slug}-full.json")
         config_file.parent.mkdir(parents=True, exist_ok=True)
         cfg["steps"] = full_steps
         with config_file.open("w") as fh_config:
             json.dump(cfg, fh_config, indent=2)
 
-        config_file = Path(f"./{slug[0]}/{slug}-incremental.json")
+        config_file = config_root / Path(f"./{slug[0]}/{slug}-incremental.json")
         config_file.parent.mkdir(parents=True, exist_ok=True)
         cfg["steps"] = incr_steps
         with config_file.open("w") as fh_config:
