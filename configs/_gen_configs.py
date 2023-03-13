@@ -18,6 +18,10 @@ def main():
         slug = name.lower().replace(" ", "-").replace(",", "-")
         slug = re.sub(r"-{2,}", "-", slug)
 
+        (a, b) = fake.random.randint(2, 5), fake.random.randint(2, 5)
+        full_steps = max(a, b)
+        incr_steps = min(a, b)
+
         cfg = {
             "id": f"Config-{i}",
             "name": name,
@@ -25,11 +29,17 @@ def main():
             "src_pattern": f"*.{fake.file_extension()}",
             "dest_bucket": f"s3://destination/{uuid.uuid4()}",
             "on_fail_notify": fake.ascii_company_email(),
-            "generations": fake.random.randint(2, 5),
         }
 
-        config_file = Path(f"./{slug[0]}/{slug}.json")
+        config_file = Path(f"./{slug[0]}/{slug}-full.json")
         config_file.parent.mkdir(parents=True, exist_ok=True)
+        cfg["steps"] = full_steps
+        with config_file.open("w") as fh_config:
+            json.dump(cfg, fh_config, indent=2)
+
+        config_file = Path(f"./{slug[0]}/{slug}-incremental.json")
+        config_file.parent.mkdir(parents=True, exist_ok=True)
+        cfg["steps"] = incr_steps
         with config_file.open("w") as fh_config:
             json.dump(cfg, fh_config, indent=2)
 
