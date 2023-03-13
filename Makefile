@@ -4,6 +4,7 @@ build: down ## refresh the configs and dags
 	rm -rf dags/[a-z]/
 	python ./build_configs.py
 	python ./build_dags.py
+	cp -r configs dags/  # why do the configs show up as a subfolder of dags, but not ./configs?
 	docker-compose build
 
 .PHONY: up
