@@ -39,12 +39,14 @@ def main():
         cfg["steps"] = full_steps
         with config_file.open("w") as fh_config:
             json.dump(cfg, fh_config, indent=2)
+        print(f"{config_file} written")
 
         config_file = config_root / Path(f"./{slug[0]}/{slug}-incremental.json")
         config_file.parent.mkdir(parents=True, exist_ok=True)
         cfg["steps"] = incr_steps
         with config_file.open("w") as fh_config:
             json.dump(cfg, fh_config, indent=2)
+        print(f"{config_file} written")
 
 
 if __name__ == "__main__":
