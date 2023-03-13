@@ -2,16 +2,22 @@ import datetime
 import json
 from datetime import timedelta
 from pathlib import Path
+from pprint import pprint
 
 import slugify as slugify
 from airflow import DAG
-from airflow.models.baseoperator import chain
 from airflow.operators.bash import BashOperator
 
 
 def load_cfg_for_dagfile(f: str) -> (dict, str):
     file = Path(f)
-    root = Path("./configs")
+    root_generator =(p for p in (Path("../../configs"), Path("./configs")) if p.exists())
+    root = next(root_generator, None)
+    if not root:
+        print(f"no root in {list(root_generator)}")
+        exit()
+    print(f"config root is {root}")
+
     subdir = Path(file.name[0])
 
     _parts = file.stem.split("-")
@@ -26,6 +32,8 @@ def load_cfg_for_dagfile(f: str) -> (dict, str):
 
 
 cfg, dag_type = load_cfg_for_dagfile(__file__)
+
+pprint(cfg)
 
 with DAG(
     slugify.slugify(f'{cfg["name"]} - {dag_type}'),
@@ -61,11 +69,19 @@ with DAG(
             bash_command="date",
         )
         steps.append(step)
-    if len(steps) % 2:
-        # serial
+
+
+    if dag_type == "full":
+        # parallel
         start >> preconditions >> steps >> end
     else:
-        # parallel
+        # series
         start >> preconditions
+
+        last_step = preconditions
         for step in steps:
-            preconditions >> step >> end
+            step.set_upstream(last_step)
+            last_step = step
+
+        step >> end
+
