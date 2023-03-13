@@ -1,4 +1,6 @@
 __pycache__
+.venv
+.idea
 logs/*
 dags/[a-z]/*
 configs/[a-z]/*
