@@ -1,1 +1,4 @@
+__pycache__
 logs/*
+dags/[a-z]/*
+configs/[a-z]/*
