@@ -4,9 +4,9 @@ build: down ## refresh the configs and dags
 	rm -rf dags/[a-z]/
 	python ./build_configs.py
 	python ./build_dags.py
-	#cp -r configs dags/  # why do the configs show up as a subfolder of dags, but not ./configs?
 	docker-compose build
 
+## Local cluster:
 .PHONY: up
 up: # build
 	## Start the airflow cluster
@@ -15,18 +15,18 @@ up: # build
 down:  ## Stop the airflow cluster
 	docker-compose down
 
-## Debugging
+## Debugging:
 .PHONY: shell
-shell:  # Open a shell on the airflow webserver
+shell:  ## Open a shell on the airflow webserver
 	docker-compose exec -it airflow-webserver bash
 
 .PHONY: browser
-browser:  ## Open airflow in a browser
+browser:  ## Open airflow in a browser - username:airflow password:airflow
 	@echo log in with username airflow, password airflow
 	@open http://localhost:8080
 
 
-## Documentation
+## Documentation:
 usage: ## This list of targets.  Run `make help` for more indepth assistance.
 	@awk 'BEGIN     { FS = ":.*##"; target="";printf "\nUsage:\n  make \033[36m<target>\033[33m\n\nTargets:\033[0m\n" } \
 		/^[.a-zA-Z_-]+:.*?##/ { if(target=="")print ""; target=$$1; printf " \033[36m%-10s\033[0m %s\n\n", $$1, $$2 } \

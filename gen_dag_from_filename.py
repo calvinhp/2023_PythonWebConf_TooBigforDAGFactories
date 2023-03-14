@@ -17,7 +17,7 @@ def load_cfg_for_dagfile(f: str) -> (dict, str):
     root = next(root_generator, None)
     if not root:
         print(f"no root in {list(root_generator)}")
-        exit()
+        return dict(), None
     # print(f"config root is {root}")
 
     subdir = Path(file.name[0])
@@ -34,12 +34,15 @@ def load_cfg_for_dagfile(f: str) -> (dict, str):
 
 
 cfg, dag_type = load_cfg_for_dagfile(__file__)
+if not cfg:
+    exit(-1)
 
 # pprint(cfg)
 
 with DAG(
     slugify.slugify(f'{cfg["name"]} - {dag_type}'),
     start_date=datetime.datetime.fromtimestamp(Path(__file__).stat().st_mtime),
+    description=cfg["description"],
     default_args={
         "depends_on_past": False,
         "email": [
