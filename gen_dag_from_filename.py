@@ -11,12 +11,14 @@ from airflow.operators.bash import BashOperator
 
 def load_cfg_for_dagfile(f: str) -> (dict, str):
     file = Path(f)
-    root_generator =(p for p in (Path("../../configs"), Path("./configs")) if p.exists())
+    root_generator = (
+        p for p in (Path("../../configs"), Path("./configs")) if p.exists()
+    )
     root = next(root_generator, None)
     if not root:
         print(f"no root in {list(root_generator)}")
         exit()
-    print(f"config root is {root}")
+    # print(f"config root is {root}")
 
     subdir = Path(file.name[0])
 
@@ -33,7 +35,7 @@ def load_cfg_for_dagfile(f: str) -> (dict, str):
 
 cfg, dag_type = load_cfg_for_dagfile(__file__)
 
-pprint(cfg)
+# pprint(cfg)
 
 with DAG(
     slugify.slugify(f'{cfg["name"]} - {dag_type}'),
@@ -66,16 +68,16 @@ with DAG(
     for step_num in range(cfg["steps"]):
         step = BashOperator(
             task_id=f"Step-{step_num+1}",
-            bash_command="date",
+            bash_command=f"sleep {2*(step_num+1)}",
         )
         steps.append(step)
-
 
     if dag_type == "full":
         # parallel
         start >> preconditions >> steps >> end
+
     else:
-        # series
+        # serial
         start >> preconditions
 
         last_step = preconditions
@@ -84,4 +86,3 @@ with DAG(
             last_step = step
 
         step >> end
-

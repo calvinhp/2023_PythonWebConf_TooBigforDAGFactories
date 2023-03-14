@@ -12,11 +12,11 @@ faker.Faker.seed(0)
 fake = faker.Faker()
 
 
-def main():
+def main(qty=100):
     config_root = Path("./configs/")
     config_root.mkdir(parents=True, exist_ok=True)
 
-    for i in range(1000):
+    for i in range(qty):
         name = str(fake.company())
         slug = name.lower().replace(" ", "-").replace(",", "-")
         slug = re.sub(r"-{2,}", "-", slug)
@@ -52,4 +52,4 @@ def main():
 if __name__ == "__main__":
     LOGLEVEL = os.environ.get("LOGLEVEL", "WARNING").upper()
     logging.basicConfig(level=LOGLEVEL)
-    main()
+    main(500)
