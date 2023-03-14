@@ -22,12 +22,12 @@ def load_cfg_for_dagfile(f: str) -> (dict, str):
 
     subdir = Path(file.name[0])
 
-    _parts = file.stem.split("-")
+    _parts = file.stem.split("_")
     dag_type = _parts[-1].lower()
-    dag_slug = "-".join(_parts[:-1])
+    dag_slug = "_".join(_parts[:-1])
     cfg_ext = "json"
 
-    cfg_file = root / subdir / Path(f"{dag_slug}-{dag_type}.{cfg_ext}")
+    cfg_file = root / subdir / Path(f"{dag_slug}_{dag_type}.{cfg_ext}")
     cfg = json.load(cfg_file.open("r"))
 
     return cfg, dag_type
@@ -38,6 +38,8 @@ if not cfg:
     exit(-1)
 
 # pprint(cfg)
+#import time
+#time.sleep(2)
 
 with DAG(
     slugify.slugify(f'{cfg["name"]} - {dag_type}'),

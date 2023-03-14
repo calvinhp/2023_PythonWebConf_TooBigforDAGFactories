@@ -13,6 +13,6 @@ for config_file in config_root.glob("**/*.json"):
     dag_file_name.parent.mkdir(parents=True, exist_ok=True)
     print(f"copy {dynamic_dag_file} to {dag_file_name}")
     shutil.copy(dynamic_dag_file, dag_file_name)
-    # pre-pop the __pycache__
+    # pre-pop the __pycache__ to be delivered as an artifact
     module_name = f"dags.{config_file.stem[0]}.{config_file.stem}"
     m = import_module(module_name)

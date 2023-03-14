@@ -36,8 +36,8 @@ def main(qty=100, include_external_facts=False):
 
     for i in range(qty):
         name = str(fake.company())
-        slug = name.lower().replace(" ", "-").replace(",", "-")
-        slug = re.sub(r"-{2,}", "-", slug)
+        slug = name.lower().replace(" ", "_").replace(",", "_").replace("-", "_")
+        slug = re.sub(r"_{2,}", "_", slug)
 
         (a, b) = fake.random.randint(2, 7), fake.random.randint(2, 7)
         full_steps = max(a, b)
@@ -57,13 +57,13 @@ def main(qty=100, include_external_facts=False):
             "on_fail_notify": fake.ascii_company_email(),
         }
 
-        config_file = config_root / Path(f"./{slug[0]}/{slug}-full.json")
+        config_file = config_root / Path(f"./{slug[0]}/{slug}_full.json")
         config_file.parent.mkdir(parents=True, exist_ok=True)
         cfg["steps"] = full_steps
         with config_file.open("w") as fh_config:
             json.dump(cfg, fh_config, indent=2)
         print(f"#{i*2+1}/{qty*2} {config_file} written")
-        config_file = config_root / Path(f"./{slug[0]}/{slug}-incremental.json")
+        config_file = config_root / Path(f"./{slug[0]}/{slug}_incremental.json")
         config_file.parent.mkdir(parents=True, exist_ok=True)
         cfg["steps"] = incr_steps
         with config_file.open("w") as fh_config:
