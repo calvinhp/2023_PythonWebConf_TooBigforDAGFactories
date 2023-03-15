@@ -63,9 +63,10 @@ x-airflow-common:
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
   volumes:
+    - ${AIRFLOW_PROJ_DIR:-.}/configs:/opt/airflow/configs
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
-    - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
+    - ${AIRFLOW_PROJ_DIR:-.}/airflow_plugins:/opt/airflow/plugins
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -107,7 +108,7 @@ services:
       - 8080:8080
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
-      interval: 10s
+      interval: 60s
       timeout: 10s
       retries: 5
     restart: always
@@ -134,9 +135,8 @@ services:
     <<: *airflow-common
     command: celery worker
     healthcheck:
-      test:
-        - "CMD-SHELL"
-        - 'celery --app airflow.executors.celery_executor.app inspect ping -d "celery@$${HOSTNAME}"'
+      test: ["CMD-SHELL",
+             'celery --app airflow.executors.celery_executor.app inspect ping -d "celery@$${HOSTNAME}"']
       interval: 10s
       timeout: 10s
       retries: 5
