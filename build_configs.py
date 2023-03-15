@@ -77,10 +77,14 @@ if __name__ == "__main__":
     # main(250, include_external_facts=True)
     #  2.19s user 0.59s system 5% cpu 53.755 total
     #  2.13s user 0.90s system 22% cpu 13.602 total
-    main(1000, include_external_facts=False)
+    # main(1000, include_external_facts=False)
     #  2.96s user 1.22s system 97% cpu 4.267 total
     #  3.04s user 1.28s system 77% cpu 5.573 total
     # Demonstrates why external resources should be gathered in build-time.
     # using external data was faster in terms of user time, but much longer in clock time
     # despite building on 1/4 the number of dags.
     # moving all of the uncertainty to the build phase makes the run-time DAGs constant time.
+    # main(40, include_external_facts=False)  # max for worst with .1 sec delay
+    # main(1200, include_external_facts=False)  # max for worst with no delay
+    #main(2200, include_external_facts=False) # took 4:23 to load these.   But no errors, and risk is spread out.
+    main(5000)
