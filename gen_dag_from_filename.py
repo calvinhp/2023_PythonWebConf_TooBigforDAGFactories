@@ -8,7 +8,7 @@ import slugify as slugify
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 
-
+from airflow.models.baseoperator import BaseOperator
 def load_cfg_for_dagfile(f: str) -> (dict, str):
     file = Path(f)
     root_generator = (
@@ -38,8 +38,81 @@ if not cfg:
     exit(-1)
 
 # pprint(cfg)
-#import time
-#time.sleep(2)
+# import time
+# time.sleep(2)
+
+
+
+def tree(l: list) -> list:
+    if not len(l):
+        return
+
+    nextlevel = []
+    if l:
+        left = l.pop(0)
+
+        # nextlevel.append([f"{left=}", []])
+        nextlevel.append([left, []])
+    if l:
+        right = l.pop(0)
+        # nextlevel.append([f"{right=}", []])
+        nextlevel.append([right, []])
+
+    if len(l):
+        for idx, n in enumerate(nextlevel):
+            sub = tree(l)
+            if sub:
+                nextlevel[idx][1].append(sub)
+            else:
+                del nextlevel[idx][1]  # remove empty list
+    else:
+        for idx, n in enumerate(nextlevel):
+            del nextlevel[idx][1]  # remove empty list
+
+    if nextlevel:
+        while isinstance(nextlevel, list) and len(nextlevel) == 1:
+            nextlevel = nextlevel[0]
+
+        return nextlevel
+    return
+
+
+
+def unwrap(l):
+    # print(f"unwrapping {l} --> ", end='')
+    if not isinstance(l, list):
+        pass
+    else:
+        while isinstance(l, list) and len(l) == 1:
+            l = unwrap(l[0])
+    # print(f" {l}")
+    return l
+
+
+def emit(s:BaseOperator, b:BaseOperator, e:BaseOperator):
+    out = f"{s} >> {b}"
+    b.set_upstream(s)
+    if e:
+        out += f" {e}"
+        e.set_upstream(b)
+    print(out)
+
+
+
+def ct2(start, t, end, indent=0):
+    l = unwrap(t)
+    if not isinstance(l, list):
+        emit(start, l, end)
+
+    else:
+        for n in l:
+            if len(n[1:]):
+                ct2(start, n[0], None, indent=indent + 3)
+            else:
+                ct2(start, n[0], end, indent=indent + 3)
+            for m in n[1:]:
+                ct2(n[0], m, end, indent=indent + 3)
+
 
 with DAG(
     slugify.slugify(f'{cfg["name"]} - {dag_type}'),
@@ -79,7 +152,13 @@ with DAG(
 
     if dag_type == "full":
         # parallel
-        start >> preconditions >> steps >> end
+        t = tree(steps)  # consumes steps
+        # t = t[0]
+        print(t)
+
+        # start >> preconditions >> t >> end
+        start >> preconditions
+        ct2(preconditions, t, end)
 
     else:
         # serial
