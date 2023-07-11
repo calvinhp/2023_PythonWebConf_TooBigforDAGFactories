@@ -277,5 +277,19 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
+  mock-api:
+    build:
+      context: ./mock_api/
+      dockerfile: Dockerfile
+    image: mock_api
+    container_name: mock-api
+    ports:
+      - 8000:5000
+    command: python3 app.py
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0
+
 volumes:
   postgres-db-volume:

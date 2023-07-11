@@ -1,0 +1,26 @@
+The Async Operators are not async in the traditional python sense.
+They are async in the sense that the execution takes place externally
+and airflow doesn't consume a slot while waiting for the task to complete.
+
+Traditional operators are synchronous, meaning that they are responsible for starting, monitoring and finishing the task.
+During that time the slot is occupied by the task and no other task can be scheduled to run on that slot.
+This means that long running tasks can cause a backlog of tasks to build up.
+
+If your operation involves long running external processes, you likely are using a hook to poll the external system or are polling the external system directly.
+This means that airflow is busy consuming that slot even though all of the work is external to airflow.
+
+This pattern is better addressed by using an async operator.
+
+The Async Operators help by splitting the operation into two stages, joined by a trigger.
+The first stage is handled by the .execute() method of the operator and is responsible for
+submitting the task to the external system.
+Before returning it calls  .defer() on itself passing a timeout parameter, a trigger object and a callback name to call on completion.
+By convention this callback name is on_complete.
+After this the operator returns and the slot is freed up for other tasks.
+
+The trigger parameter is used to determine when the external system has completed its task.
+This part is should be as light as possible and is a good candidate for actual async code to poll the
+external system.
+
+Part two is handled by the .on_complete() method of the operator.
+It is generally responsible for updating the task state and logging the result of the task.
