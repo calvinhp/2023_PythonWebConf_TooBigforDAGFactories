@@ -1,0 +1,19 @@
+mappings:
+  - match: "(.+)\\.operator_successes_(.+)$"
+    match_metric_type: counter
+    name: "af_agg_operator_successes"
+    match_type: regex
+    labels:
+      airflow_id: "$1"
+      operator_name: "$2"
+  - match: "*.ti_failures"
+    match_metric_type: counter
+    name: "af_agg_ti_failures"
+    labels:
+      airflow_id: "$1"
+  - match: "*.ti_successes"
+    match_metric_type: counter
+    name: "af_agg_ti_successes"
+    labels:
+      airflow_id: "$1"
+
