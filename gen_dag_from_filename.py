@@ -1,14 +1,34 @@
+import asyncio
 import datetime
 import json
+import time
 from datetime import timedelta
 from pathlib import Path
 from pprint import pprint
+from typing import Any, AsyncIterator, Dict, Iterator, AnyStr, Tuple
 
+import httpx as httpx
+import requests as requests
 import slugify as slugify
 from airflow import DAG
-from airflow.operators.bash import BashOperator
-
 from airflow.models.baseoperator import BaseOperator
+from airflow.operators.bash import BashOperator
+from airflow.triggers.base import BaseTrigger, TriggerEvent
+
+
+def fullname(o: object) -> AnyStr:
+    """
+    Return the fully-qualified (dotted form) name of the object from its class.
+    Serializers often need to know the full name of a class, so this can compute it
+    from an object.
+    """
+    klass = o.__class__
+    module = klass.__module__
+    if module == "builtins":
+        return klass.__qualname__
+    return module + "." + klass.__qualname__
+
+
 def load_cfg_for_dagfile(f: str) -> (dict, str):
     file = Path(f)
     root_generator = (
@@ -40,7 +60,6 @@ if not cfg:
 # pprint(cfg)
 # import time
 # time.sleep(2)
-
 
 
 def tree(l: list) -> list:
@@ -77,7 +96,6 @@ def tree(l: list) -> list:
     return
 
 
-
 def unwrap(l):
     # print(f"unwrapping {l} --> ", end='')
     if not isinstance(l, list):
@@ -89,14 +107,13 @@ def unwrap(l):
     return l
 
 
-def emit(s:BaseOperator, b:BaseOperator, e:BaseOperator):
+def emit(s: BaseOperator, b: BaseOperator, e: BaseOperator):
     out = f"{s} >> {b}"
     b.set_upstream(s)
     if e:
         out += f" {e}"
         e.set_upstream(b)
     print(out)
-
 
 
 def ct2(start, t, end, indent=0):
@@ -113,6 +130,148 @@ def ct2(start, t, end, indent=0):
             for m in n[1:]:
                 ct2(n[0], m, end, indent=indent + 3)
 
+
+class BlockingRemoteOperator(BaseOperator):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.remote_base_url = kwargs.get("remote_base_url", "http://mock-api:5000/")
+
+    def execute(self, context):
+        print(f"RemoteOperator.execute({self})")
+        self.submit_to_remote(context)
+        result = self.wait_for_remote(context)
+        return result
+
+    def get_job_id(self, context):
+        dag_id = self.dag_id
+        task_id = self.task_id
+        run_id = context.get("run_id")
+        job_id = f"{dag_id}:{task_id}:{run_id}"
+        return job_id
+
+    def submit_to_remote(self, context):
+        print(f"RemoteOperator.submit_remote({self})")
+        response = requests.get(self.remote_base_url + "submit/" + self.get_job_id(context))
+        result = response.content.decode("utf-8")
+        return result
+
+    def wait_for_remote(self, context):
+        result = None
+        while result in ("Running", None):
+            print(f"RemoteOperator.wait_for_remote({self}) - {result}")
+            if result != "Complete":
+                time.sleep(1)
+            result = self.poll_remote(context)
+            print(result)
+
+        return result
+
+    def poll_remote(self, context):
+        print(f"RemoteOperator.poll_remote({self})")
+        response = requests.get(self.remote_base_url + "status/" + self.get_job_id(context))
+        result = response.content.decode("utf-8")
+        return result
+
+
+class DeferredRemoteOperator(BlockingRemoteOperator):
+    """
+    Synchonous job submittion, but asynchronous job completion polling via Trigger.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def execute(self, context):
+        print(f"DeferredRemoteOperator.execute({self})")
+        submit_result = self.submit_to_remote(context)
+
+        trigger = DeferrableRemoteTrigger(
+            base_url=self.remote_base_url,
+            task_id=self.task_id,
+            dag_id=self.dag_id,
+            job_id=self.get_job_id(context),
+            submmit_result=submit_result,
+        )
+        self.defer(
+            trigger=trigger,
+            method_name="execute_complete",
+            kwargs={},
+            timeout=datetime.timedelta(minutes=2),
+        )
+        # execution stops here and frees up the worker
+        # the trigger will asynchronously poll for completion then call back to execute_complete
+
+    def execute_complete(self, context, event=None):
+        print(f"DeferredRemoteOperator.execute_complete({self})")
+        return
+
+
+class DeferrableRemoteTrigger(BaseTrigger):
+    def __init__(
+        self,
+        *args,
+        base_url=None,
+        job_id=None,
+        dag_id=None,
+        submit_result=None,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        super().__init__()
+        self.base_url = base_url
+        self.job_id = job_id
+        self.dag_id = dag_id
+        self.submit_result = submit_result
+
+    def serialize(self) -> Tuple[str, Dict[str, Any]]:
+        return (
+            fullname(self),
+            {
+                "base_url": self.base_url,
+                "job_id": self.job_id,
+                "dag_id": self.run_id,
+                "submit_result": self.submit_result,
+            },
+        )
+
+    async def run(self) -> Iterator["TriggerEvent"]:
+        while True:
+            async with httpx.AsyncClient() as client:  # TODO: aiohttp is likely even faster here
+                response = await client.get(self.base_url + "status/" + self.job_id)
+                print(response.text)
+                result = response.text
+
+            print(f"DeferrableRemoteTrigger.run({self}) - {result}")
+
+            if result == "complete":
+                print(f"DeferrableRemoteTrigger.run({self}) - complete")
+                yield TriggerEvent(result)
+                break
+
+            else:
+                print(f"DeferrableRemoteTrigger.run({self}) - looping after 1 second.")
+                yield TriggerEvent(result)
+                await asyncio.sleep(1)
+
+
+# class AsyncRemoteTrigger(DeferrableRemoteTrigger):
+#
+#     def serialize(self) -> Tuple[str, Dict[str, Any]]:
+#         return (
+#             "dags.AsyncRemoteTrigger",  # TODO: use fully qualified name
+#             {
+#                 "job_id": self.job_id,
+#                 "dag_id": self.run_id,
+#             },
+#         )
+#
+#     async def run(self) -> AsyncIterator["TriggerEvent"]:
+#         print(f"AsyncRemoteOperator.run({self})")
+#         result = None
+#         while self.moment > timezone.utcnow():
+#             self.wait_for_remote()
+#             await asyncio.sleep(1)
+#         yield TriggerEvent(self.moment)
 
 with DAG(
     slugify.slugify(f'{cfg["name"]} - {dag_type}'),
@@ -144,9 +303,9 @@ with DAG(
 
     steps = []
     for step_num in range(cfg["steps"]):
-        step = BashOperator(
+        step = BlockingRemoteOperator(
             task_id=f"Step-{step_num+1}",
-            bash_command=f"sleep {2*(step_num+1)}",
+            # bash_command=f"sleep {2*(step_num+1)}",
         )
         steps.append(step)
 
