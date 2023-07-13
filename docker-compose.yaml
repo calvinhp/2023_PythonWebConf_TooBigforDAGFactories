@@ -336,8 +336,11 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER: grafana
       GF_SECURITY_ADMIN_PASSWORD: grafana
+      GF_PATHS_PROVISIONING: /grafana/provisioning
     ports:
       - 3000:3000
+    volumes:
+      - ./grafana/provisioning:/grafana/provisioning
 
 volumes:
   postgres-db-volume:
