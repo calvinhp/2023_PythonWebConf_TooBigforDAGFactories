@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 tasks = {}
 
-task_duration = datetime.timedelta(seconds=30)
+task_duration = datetime.timedelta(seconds=10)
 
 
 @app.route("/submit/<name>")
