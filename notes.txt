@@ -24,3 +24,9 @@ external system.
 
 Part two is handled by the .execute_complete() method of the operator.
 It is generally responsible for updating the task state and logging the result of the task.
+
+
+statsd metrics we're interested in:
+    airflow_executor_open_slots
+    airflow_executor_queued_tasks
+    airflow_executor_running_tasks

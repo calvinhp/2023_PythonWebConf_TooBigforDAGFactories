@@ -304,7 +304,8 @@ with DAG(
     steps = []
     for step_num in range(cfg["steps"]):
         step = BlockingRemoteOperator(
-            task_id=f"Step-{step_num+1}",
+        # step=DeferredRemoteOperator(
+                task_id=f"Step-{step_num+1}",
             # bash_command=f"sleep {2*(step_num+1)}",
         )
         steps.append(step)
