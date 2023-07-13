@@ -59,7 +59,7 @@ mock_api_shell:  ## run mock_api shell
 	@docker run -it -p 8000:5000 mock_api bash
 
 .PHONY: mock_api
-mock_api:  ## start the mock api on port 8000
+mock_api:  ## start the mock api on internal port 5000, localhost port 8000.
 	@docker run -it -p 8000:5000 mock_api
 
 ## Documentation:
