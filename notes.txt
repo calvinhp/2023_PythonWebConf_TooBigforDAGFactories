@@ -15,12 +15,12 @@ The Async Operators help by splitting the operation into two stages, joined by a
 The first stage is handled by the .execute() method of the operator and is responsible for
 submitting the task to the external system.
 Before returning it calls  .defer() on itself passing a timeout parameter, a trigger object and a callback name to call on completion.
-By convention this callback name is on_complete.
+By convention this callback name is execute_complete.
 After this the operator returns and the slot is freed up for other tasks.
 
-The trigger parameter is used to determine when the external system has completed its task.
+The trigger parameter is used to detect when the external system has completed its task.
 This part is should be as light as possible and is a good candidate for actual async code to poll the
 external system.
 
-Part two is handled by the .on_complete() method of the operator.
+Part two is handled by the .execute_complete() method of the operator.
 It is generally responsible for updating the task state and logging the result of the task.
