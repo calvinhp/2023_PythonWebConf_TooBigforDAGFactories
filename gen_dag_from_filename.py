@@ -277,6 +277,7 @@ with DAG(
     slugify.slugify(f'{cfg["name"]} - {dag_type}'),
     start_date=datetime.datetime.fromtimestamp(Path(__file__).stat().st_mtime),
     description=cfg["description"],
+    schedule=None,
     default_args={
         "depends_on_past": False,
         "email": [
