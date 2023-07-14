@@ -1,0 +1,7 @@
+Note: when exporting a dashboard, the dashboard will be exported as a .json file.
+That will be the raw dashboard structure for a single dashboard.
+But the files here need to be:
+ - wrapped in a `{"dashboard": {}}` object
+ - have their id set to null in order to be created.
+
+The setup script will post all the *.json files in this directory to the Grafana API.
