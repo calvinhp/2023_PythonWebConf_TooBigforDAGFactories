@@ -48,7 +48,8 @@ shell:  ## Open a shell on the airflow webserver
 .PHONY: browser
 browser:  ## Open airflow in a browser - username:airflow password:airflow
 	@echo log in with username airflow, password airflow
-	@open http://localhost:8080
+	@open http://localhost:8080 # airflow
+	@open http://localhost:3000 # grafana
 
 .PHONY: dag-log
 dag-log:  # Watch the dag processor manager logs
