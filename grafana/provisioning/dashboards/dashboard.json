@@ -1,4 +1,9 @@
 {
+"dashboard":{
+  "title": "Slots",
+  "id": null,
+  "uid": "slots-1",
+  "version": 2,
   "annotations": {
     "list": [
       {
@@ -18,7 +23,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -140,11 +144,11 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "airflow_scheduler_tasks_starving",
+          "expr": "airflow_scheduler_tasks_executable",
           "hide": false,
           "instant": false,
           "range": true,
-          "refId": "D"
+          "refId": "E"
         },
         {
           "datasource": {
@@ -152,11 +156,11 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "airflow_scheduler_tasks_executable",
+          "expr": "af_agg_ti_scheduled",
           "hide": false,
           "instant": false,
           "range": true,
-          "refId": "E"
+          "refId": "D"
         }
       ],
       "title": "Slots",
@@ -176,8 +180,6 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Slots",
-  "uid": "ff84264f-1e38-47db-b17c-45ffd5684d0f",
-  "version": 4,
   "weekStart": ""
+}
 }
