@@ -63,10 +63,10 @@ x-airflow-common:
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
     # for metrics to be visible on Grafana, you need to airflow to run statsd
-    AIRFLOW__SCHEDULER__STATSD_ON: 'true'
-    AIRFLOW__SCHEDULER__STATSD_HOST: statsd-exporter
-    AIRFLOW__SCHEDULER__STATSD_PORT: 8125
-    AIRFLOW__SCHEDULER__STATSD_PREFIX: airflow
+    AIRFLOW__METRICS__STATSD_ON: 'true'
+    AIRFLOW__METRICS__STATSD_HOST: statsd-exporter
+    AIRFLOW__METRICS__STATSD_PORT: 8125
+    AIRFLOW__METRICS__STATSD_PREFIX: airflow
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/configs:/opt/airflow/configs
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
@@ -249,7 +249,7 @@ services:
         fi
         mkdir -p /sources/logs /sources/dags /sources/plugins
         echo chowning /sources/{logs,dags,plugins}.   This takes an inexplicably long time.
-        time chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins}
+        echo time chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins}
         echo "running  /entrypoint airflow version"
         exec /entrypoint airflow version
     # yamllint enable rule:line-length
@@ -304,6 +304,7 @@ services:
       dockerfile: Dockerfile
     image: mock_api
     container_name: mock-api
+    restart: always
     ports:
       - 8000:5000
     command: python3 app.py
@@ -315,6 +316,7 @@ services:
   statsd-exporter:
     image: prom/statsd-exporter
     container_name: airflow-statsd-exporter
+#    restart: always
     depends_on:
       - airflow-webserver
     volumes:
@@ -327,6 +329,7 @@ services:
   prometheus:
     image: prom/prometheus
     container_name: airflow-prometheus
+#    restart: always
     depends_on:
       - statsd-exporter
     ports:
@@ -337,6 +340,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: airflow-grafana
+#    restart: always
     depends_on:
       - prometheus
     environment:
@@ -346,7 +350,17 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./grafana/provisioning:/grafana/provisioning
+      - $PWD/grafana/provisioning:/grafana/provisioning
+#      - $PWD/grafana/grafana_data:/var/lib/grafana
+#      - $PWD/grafana/certs:/certs
+  grafana-dashboards-setup:
+    image: alpine/curl
+    container_name: airflow-grafana-dashboards-setup
+    depends_on:
+      - grafana
+    command: sh /grafana/provisioning/dashboards/setup.sh
+    volumes:
+      - $PWD/grafana/provisioning:/grafana/provisioning
 
 volumes:
   postgres-db-volume:
