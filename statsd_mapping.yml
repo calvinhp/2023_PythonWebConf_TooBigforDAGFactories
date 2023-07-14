@@ -6,11 +6,13 @@ mappings:
     labels:
       airflow_id: "$1"
       operator_name: "$2"
+
   - match: "*.ti_failures"
     match_metric_type: counter
     name: "af_agg_ti_failures"
     labels:
       airflow_id: "$1"
+
   - match: "*.ti_successes"
     match_metric_type: counter
     name: "af_agg_ti_successes"
@@ -28,6 +30,16 @@ mappings:
   - match: "airflow.executor.running_tasks"
     help: The number of running tasks
     name: "airflow_executor_running_tasks"
+
+  - match: "airflow_ti_(.+)_scheduled$"
+    match_type: regex
+    # example airflow_ti_finish_meyer_plc_full_Step_1_scheduled
+    # this one doesn't seem to be working
+    help: Aggregated number of tasks scheduled
+    match_metric_type: counter
+    name: "af_agg_ti_scheduled"
+    labels:
+      airflow_id: "$1"
 
 
 
