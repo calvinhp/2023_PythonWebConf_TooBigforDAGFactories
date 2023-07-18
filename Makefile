@@ -47,8 +47,11 @@ shell:  ## Open a shell on the airflow webserver
 
 .PHONY: browser
 browser:  ## Open airflow in a browser - username:airflow password:airflow
-	@echo log in with username airflow, password airflow
+	@echo log in to airflow with username airflow, password airflow
 	@open http://localhost:8080 # airflow
+	@open http://localhost:9102/metrics # statsd-exported metrics
+	@open http://localhost:9090/graph # prometheus
+	@echo log in to grafana with username grafana, password grafana
 	@open http://localhost:3000 # grafana
 
 .PHONY: dag-log
