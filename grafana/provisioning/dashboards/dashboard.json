@@ -1,9 +1,5 @@
 {
 "dashboard":{
-  "title": "Slots",
-  "id": null,
-  "uid": "slots-1",
-  "version": 2,
   "annotations": {
     "list": [
       {
@@ -23,6 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
+  "id": null,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -175,11 +172,14 @@
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
+  "title": "Slots",
+  "uid": "slots-1",
+  "version": 1,
   "weekStart": ""
 }
 }
