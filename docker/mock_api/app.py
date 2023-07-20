@@ -14,7 +14,7 @@ task_duration = datetime.timedelta(seconds=30)
 def submit(name):
     tasks[name] = datetime.datetime.now()
 
-    print(f"Submitted {name} at {tasks[name]}")
+    app.logger.info(f"Submitted {name} at {tasks[name]}")
 
     return f"{name} Submitted Successfully"
 
@@ -29,7 +29,7 @@ def status(name):
     else:
         res = "Not Found"
 
-    print(f"Status of {name} is {res}")
+    app.logger.info(f"Status of {name} is {res}")
     return res
 
 # Programs executes from here in a development server (locally on your system)
