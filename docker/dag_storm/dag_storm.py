@@ -7,10 +7,13 @@ import httpx
 parallel = 25
 storm_size = 100
 
+# AIRFLOW_HOST = "airflow-webserver"
+AIRFLOW_HOST = "dag_talk_examples-airflow-webserver-1"
+
 # get list of enabled dags
 active_dag_resp = httpx.get(
     # "http://localhost:8080/api/v1/dags?paused=0",  # new in 2.6
-    "http://localhost:8080/api/v1/dags?limit=10000",  # wont go past 100?
+    f"http://{AIRFLOW_HOST}:8080/api/v1/dags?limit=10000",  # wont go past 100?
     auth=("airflow", "airflow"),
 )
 active_dag_data = active_dag_resp.json()
@@ -21,7 +24,7 @@ total_entries = active_dag_data["total_entries"]
 def get_page(page_num, page_size=100):
     print(f"get_page({page_num}, {page_size})")
     get_dags_page_res = httpx.get(
-        f"http://localhost:8080/api/v1/dags?limit={page_size}&offset={page_num * page_size}",
+        f"http://{AIRFLOW_HOST}:8080/api/v1/dags?limit={page_size}&offset={page_num * page_size}",
         auth=("airflow", "airflow"),
     )
     return get_dags_page_res
@@ -52,7 +55,7 @@ def post_dag(dag_id, i):
     run_dts = datetime.datetime.utcnow().isoformat()
     suffix = str(time.time()).replace(".", "")
     return httpx.post(
-        f"http://localhost:8080/api/v1/dags/{dag_id}/dagRuns",
+        f"http://{AIRFLOW_HOST}:8080/api/v1/dags/{dag_id}/dagRuns",
         auth=("airflow", "airflow"),
         json={
             "dag_run_id": f"{dag_id}-run-{i}-{suffix}",  # must also be unique
