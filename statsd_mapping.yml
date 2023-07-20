@@ -75,6 +75,7 @@ mappings:
     name: "af_agg_ti_deferred"
     match_type: regex
     # example airflow_ti_finish_meyer_plc_full_Step_1_deferred
+    #         airflow_ti_finish_bailey_llc_full_Step_1_deferred 16
     help: Aggregated number of tasks deferred
     match_metric_type: gauge
     labels:
@@ -91,4 +92,9 @@ mappings:
     metric_type: gauge
 
 
-
+  # from airflow's exporter
+#  airflow_dag_status{dag_id="bailey-and-sons-incremental",owner="airflow",status="queued"} 68.0
+#  airflow_dag_status{dag_id="bailey-and-sons-incremental",owner="airflow",status="running"} 16.0
+#  airflow_dag_status{dag_id="bailey-and-sons-incremental",owner="airflow",status="success"} 16.0
+#  airflow_dag_status{dag_id="bailey-and-sons-incremental",owner="airflow",status="failed"} 0.0
+#  airflow_dag_status{dag_id="bailey-and-sons-incremental",owner="airflow",status="none"} 0.0
