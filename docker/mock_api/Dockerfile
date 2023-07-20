@@ -17,7 +17,7 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 
 # Copies everything to the working directory
-COPY ./app.py /app/app.py
+COPY app.py /app/app.py
 
 # Command to run on container start
 EXPOSE 5000
