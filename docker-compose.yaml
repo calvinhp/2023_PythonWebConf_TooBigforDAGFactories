@@ -46,8 +46,10 @@ x-airflow-common:
   # In order to add custom dependencies or upgrade provider packages you can use your extended image.
   # Comment the image line, place your Dockerfile in the directory where you placed the docker-compose.yaml
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
-  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.5.1}
-  # build: .
+  #  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.5.1}
+  build:
+    context: ./docker/airflow/
+    dockerfile: Dockerfile
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
@@ -262,6 +264,9 @@ services:
         mkdir -p /sources/logs /sources/dags /sources/plugins
         echo chowning /sources/{logs,dags,plugins}.   This takes an inexplicably long time.
         echo time chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins}
+        echo "adding plugins"
+        #        sudo -u airflow pip install airflow-prometheus-exporter
+        sudo -u airflow python -m pip install git+https://github.com/KulykDmytro/airflow-prometheus-exporter@master#egg=airflow-prometheus-exporter
         echo "running  /entrypoint airflow version"
         exec /entrypoint airflow version
     # yamllint enable rule:line-length
@@ -352,6 +357,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: airflow-grafana
+    restart: unless-stopped
 #    restart: always
     depends_on:
       - prometheus
@@ -359,6 +365,7 @@ services:
       GF_SECURITY_ADMIN_USER: grafana
       GF_SECURITY_ADMIN_PASSWORD: grafana
       GF_PATHS_PROVISIONING: /grafana/provisioning
+      GF_INSTALL_PLUGINS: marcusolsson-json-datasource
     ports:
       - "3000:3000"
     volumes:
