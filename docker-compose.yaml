@@ -110,7 +110,7 @@ services:
     <<: *airflow-common
     command: webserver
     ports:
-      - 8080:8080
+      - "8080:8080"
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 60s
@@ -286,7 +286,7 @@ services:
     profiles:
       - flower
     ports:
-      - 5555:5555
+      - "5555:5555"
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:5555/"]
       interval: 10s
@@ -306,7 +306,7 @@ services:
     container_name: mock-api
     restart: always
     ports:
-      - 8000:5000
+      - "8000:5000"
     command: python3 app.py
     environment:
       - FLASK_ENV=development
@@ -323,8 +323,8 @@ services:
       - $PWD/statsd_mapping.yml:/tmp/statsd_mapping.yml
     command: "--statsd.listen-udp=:8125 --web.listen-address=:9102 --statsd.mapping-config=/tmp/statsd_mapping.yml"
     ports:
-      - 9102:9102
-      - 8125:8125/udp
+      - "9102:9102"
+      - "8125:8125/udp"
 
   prometheus:
     image: prom/prometheus
@@ -333,7 +333,7 @@ services:
     depends_on:
       - statsd-exporter
     ports:
-      - 9090:9090
+      - "9090:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 
@@ -348,7 +348,7 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: grafana
       GF_PATHS_PROVISIONING: /grafana/provisioning
     ports:
-      - 3000:3000
+      - "3000:3000"
     volumes:
       - $PWD/grafana/provisioning:/grafana/provisioning
 #      - $PWD/grafana/grafana_data:/var/lib/grafana
