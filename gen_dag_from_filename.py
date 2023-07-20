@@ -158,6 +158,7 @@ class BlockingRemoteOperator(BaseOperator):
             self.remote_base_url + "submit/" + self.get_job_id(context)
         )
         result = response.content.decode("utf-8")
+        print(f"result = {result}")
         return result
 
     def wait_for_remote(self, context):
@@ -260,7 +261,7 @@ class DeferrableRemoteTrigger(BaseTrigger):
 
             print(f"DeferrableRemoteTrigger.run({self}) - {result}")
 
-            if result == "complete":
+            if result == "Complete":
                 print(f"DeferrableRemoteTrigger.run({self}) - complete")
                 yield TriggerEvent(result)
                 break
