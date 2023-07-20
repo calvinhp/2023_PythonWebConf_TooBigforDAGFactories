@@ -45,14 +45,31 @@ down:  ## Stop the airflow cluster
 shell:  ## Open a shell on the airflow webserver
 	@docker-compose exec -it airflow-webserver bash
 
+#.PHONY: shell-root
+#shell-root:  ## Open a shell on the airflow webserver as root
+#	@docker-compose exec -it -u 0 airflow-webserver bash
+
+.PHONY: reset
+reset:  ## Reset the airflow database
+	@#docker-compose exec -it  airflow-webserver airflow db reset --yes
+	@docker volume rm dag_talk_examples_postgres-db-volume
+
+# deprecated after improved reset:
+#.PHONY: fix
+#fix:  ## Fix the airflow database
+#	@docker-compose cp ./fix_for_unserialized_dags.py airflow-webserver:/opt/airflow/fix.py
+#	@docker-compose exec -it airflow-webserver python /opt/airflow/fix.py
+
 .PHONY: browser
 browser:  ## Open airflow in a browser - username:airflow password:airflow
 	@echo log in to airflow with username airflow, password airflow
 	@open http://localhost:8080 # airflow
+	@open http://localhost:8080/admin/metrics/ # airflow
 	@open http://localhost:9102/metrics # statsd-exported metrics
 	@open http://localhost:9090/graph # prometheus
 	@echo log in to grafana with username grafana, password grafana
 	@open http://localhost:3000 # grafana
+	@open http://localhost:8025 # mailhog
 
 .PHONY: dag-log
 dag-log:  # Watch the dag processor manager logs
