@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 tasks = {}
 
-task_duration = datetime.timedelta(seconds=10)
+task_duration = datetime.timedelta(seconds=30)
 
 
 @app.route("/submit/<name>")
@@ -23,12 +23,14 @@ def submit(name):
 def status(name):
     if name in tasks:
         if tasks[name] + task_duration > datetime.datetime.now():
-            return "Running"
+            res = "Running"
         else:
-            return "Complete"
+            res = "Complete"
     else:
-        return "Not Found"
+        res = "Not Found"
 
+    print(f"Status of {name} is {res}")
+    return res
 
 # Programs executes from here in a development server (locally on your system)
 # with debugging enabled.
