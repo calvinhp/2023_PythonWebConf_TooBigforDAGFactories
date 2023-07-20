@@ -380,6 +380,15 @@ services:
     command: sh /grafana/provisioning/dashboards/setup.sh
     volumes:
       - $PWD/grafana/provisioning:/grafana/provisioning
+  dag-storm:
+    build:
+      context: docker/dag_storm/
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 0
+    image: dag_storm
+    container_name: dag-storm
+    command: python3 /app/dag_storm.py
 
 volumes:
   postgres-db-volume:

@@ -40,6 +40,10 @@ up: # build
 down:  ## Stop the airflow cluster
 	@docker-compose down
 
+.phony: dag_storm
+dag_storm:  ## start a storm of dags
+	docker-compose run --rm dag_storm
+
 ## Debugging:
 .PHONY: shell
 shell:  ## Open a shell on the airflow webserver
