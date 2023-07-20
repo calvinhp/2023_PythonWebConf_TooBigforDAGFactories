@@ -67,6 +67,11 @@ x-airflow-common:
     AIRFLOW__METRICS__STATSD_HOST: statsd-exporter
     AIRFLOW__METRICS__STATSD_PORT: 8125
     AIRFLOW__METRICS__STATSD_PREFIX: airflow
+    # for email error handling
+    AIRFLOW__EMAIL__EMAIL_BACKEND: airflow.airflow.utils.email.send_email_smtp
+    AIRFLOW__EMAIL__SMTP_HOST: airflow-mailhog
+    AIRFLOW__EMAIL__SMTP_PORT: 1025
+
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/configs:/opt/airflow/configs
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
@@ -105,6 +110,13 @@ services:
       timeout: 30s
       retries: 50
     restart: always
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: 'airflow-mailhog'
+    ports:
+      - "1025:1025"
+      - "8025:8025"
 
   airflow-webserver:
     <<: *airflow-common
