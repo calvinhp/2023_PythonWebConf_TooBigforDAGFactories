@@ -98,7 +98,12 @@ Connections and Hooks provide easy access to external systems and APIs
 * Start with Dynamic DAGs Factories
 * As you scale up you will need to statically generate
 * Precompute configurations and data needed during build
-* Optimize to run your tasks in parallel
+
+# New Problem
+
+* Optimize to run your tasks to run in parallel
+* Avoid being limited by the number of slots in the scheduler by using DeferredOperators and AsyncTriggers
+* Another Talk?  "Too Big for the Scheduler?"
 
 # Wrap up and Questions {.semi-filtered data-background-image="images/justin-casey-7B0D1zO3PoQ-unsplash.jpg"}
 
