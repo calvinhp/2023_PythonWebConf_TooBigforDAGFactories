@@ -29,7 +29,7 @@ better_case: build  ## Better -- every dag gets its own file, should be well wit
 
 .PHONY: build_mock_api
 build_mock_api:
-	docker build -t mock_api -f ./mock_api/Dockerfile ./mock_api
+	docker build -t mock_api -f ./mock_api/Dockerfile ./docker/mock_api
 
 ## Local cluster:
 .PHONY: up
@@ -75,13 +75,10 @@ browser:  ## Open airflow in a browser - username:airflow password:airflow
 dag-log:  # Watch the dag processor manager logs
 	@tail -f ./logs/dag_processor_manager/dag_processor_manager.log
 
-.PHONY: mock_api_shell
-mock_api_shell:  ## run mock_api shell
-	@docker run -it -p 8000:5000 mock_api bash
-
 .PHONY: mock_api
 mock_api:  ## start the mock api on internal port 5000, localhost port 8000.
 	@docker run -it -p 8000:5000 mock_api
+
 
 ## Documentation:
 usage: ## This list of targets.  Run `make help` for more indepth assistance.

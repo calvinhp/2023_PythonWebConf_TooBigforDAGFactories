@@ -317,7 +317,7 @@ services:
 
   mock-api:
     build:
-      context: ./mock_api/
+      context: docker/mock_api/
       dockerfile: Dockerfile
     image: mock_api
     container_name: mock-api
