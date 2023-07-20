@@ -70,7 +70,7 @@ x-airflow-common:
     AIRFLOW__METRICS__STATSD_PORT: 8125
     AIRFLOW__METRICS__STATSD_PREFIX: airflow
     # for email error handling
-    AIRFLOW__EMAIL__EMAIL_BACKEND: airflow.airflow.utils.email.send_email_smtp
+#    AIRFLOW__EMAIL__EMAIL_BACKEND: airflow.airflow.utils.email.send_email_smtp
     AIRFLOW__EMAIL__SMTP_HOST: airflow-mailhog
     AIRFLOW__EMAIL__SMTP_PORT: 1025
 

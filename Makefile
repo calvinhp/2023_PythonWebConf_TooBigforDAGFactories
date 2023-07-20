@@ -33,16 +33,16 @@ build_mock_api:
 
 ## Local cluster:
 .PHONY: up
-up: # build
+up:
 	## Start the airflow cluster
 	@docker-compose up
 
 down:  ## Stop the airflow cluster
 	@docker-compose down
 
-.phony: dag_storm
-dag_storm:  ## start a storm of dags
-	docker-compose run --rm dag_storm
+.phony: storm
+storm:  ## start a storm of dags
+	docker-compose run --rm dag-storm
 
 ## Debugging:
 .PHONY: shell
