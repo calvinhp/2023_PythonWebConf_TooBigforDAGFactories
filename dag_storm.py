@@ -8,9 +8,7 @@ parallel = 25
 storm_size = 100
 
 # get list of enabled dags
-# curl http://localhost:8080/api/v1/dags\?only_active\=True --user "airflow:airflow"
 active_dag_resp = httpx.get(
-    # "http://localhost:8080/api/v1/dags?only_active=true", auth=("airflow", "airflow")
     # "http://localhost:8080/api/v1/dags?paused=0",  # new in 2.6
     "http://localhost:8080/api/v1/dags?limit=10000",  # wont go past 100?
     auth=("airflow", "airflow"),
@@ -80,8 +78,6 @@ else:
             for i in range(storm_size):
                 futures.append(executor.submit(post_dag, dag_id, i))
 
-        # Optional: if you want to work with the results as they come in
         for future in concurrent.futures.as_completed(futures):
             response = future.result()  # This will give you the response of httpx.post
-            # do something with response if you want
             print(response)
