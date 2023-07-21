@@ -4,7 +4,7 @@ pagetitle: Too Big for DAG Factories
 author: Calvin Hendryx-Parker, CTO, Six Feet Up
 author-meta:
     - Calvin Hendryx-Parker
-date: Python Web Conf 2023
+date: EuroPython 2023
 date-meta: 2023
 keywords:
     - Python
@@ -24,6 +24,17 @@ Brief intro to how this all started
 Pointer to talk from last year
 :::
 
+# Origin
+
+[Data Pipeline Modernization at Scale](https://youtu.be/kua-Z60GlqA)  
+
+![](images/qrcode_www.youtube.com.png)
+
+
+# Check it out 🚀
+
+<https://github.com/calvinhp/2023_PythonWebConf_TooBigforDAGFactories>
+![Talk Repo](images/qrcode_github.com.png)
 
 # Why should I care about this talk? {.r-fit-text .semi-filtered data-background-image="images/matt-artz-2dCdOoYDjOQ-unsplash.jpg"}
 
@@ -102,8 +113,11 @@ Connections and Hooks provide easy access to external systems and APIs
 # New Problem
 
 * Optimize to run your tasks to run in parallel
-* Avoid being limited by the number of slots in the scheduler by using DeferredOperators and AsyncTriggers
+* Avoid being limited by the number of slots
+  * `DeferredOperators` and async `Triggers`
 * Another Talk?  "Too Big for the Scheduler?"
+
+# {.original data-background-image="images/slots.png"}
 
 # Wrap up and Questions {.semi-filtered data-background-image="images/justin-casey-7B0D1zO3PoQ-unsplash.jpg"}
 
