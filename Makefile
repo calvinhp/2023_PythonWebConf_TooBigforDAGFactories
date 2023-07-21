@@ -17,7 +17,7 @@ build_worst_case:
 	docker-compose build
 
 .PHONY: worst_case
-worst_case: down clean_dags build_worst_case  ## Worst case scenario: a single dag factory with external dependencies for each dage
+worst_case: down clean_dags build_worst_case  ## Worst case scenario: a single dag factory with external dependencies for each dag.
 	# scales to only less than 50 dags with a .1 sec delay
 	# scales to about 2400 without the delay
 	@docker-compose up
@@ -27,28 +27,61 @@ better_case: build  ## Better -- every dag gets its own file, should be well wit
 	# scales beyond 10k dags on stock config
 	@docker-compose up
 
+.PHONY: build_mock_api
+build_mock_api:
+	docker build -t mock_api -f ./mock_api/Dockerfile ./docker/mock_api
+
 ## Local cluster:
 .PHONY: up
-up: # build
+up:
 	## Start the airflow cluster
 	@docker-compose up
 
 down:  ## Stop the airflow cluster
 	@docker-compose down
 
+.phony: storm
+storm:  ## start a storm of dags
+	docker-compose run --rm dag-storm
+
 ## Debugging:
 .PHONY: shell
 shell:  ## Open a shell on the airflow webserver
 	@docker-compose exec -it airflow-webserver bash
 
+#.PHONY: shell-root
+#shell-root:  ## Open a shell on the airflow webserver as root
+#	@docker-compose exec -it -u 0 airflow-webserver bash
+
+.PHONY: reset
+reset:  ## Reset the airflow database
+	@#docker-compose exec -it  airflow-webserver airflow db reset --yes
+	@docker volume rm dag_talk_examples_postgres-db-volume
+
+# deprecated after improved reset:
+#.PHONY: fix
+#fix:  ## Fix the airflow database
+#	@docker-compose cp ./fix_for_unserialized_dags.py airflow-webserver:/opt/airflow/fix.py
+#	@docker-compose exec -it airflow-webserver python /opt/airflow/fix.py
+
 .PHONY: browser
 browser:  ## Open airflow in a browser - username:airflow password:airflow
-	@echo log in with username airflow, password airflow
-	@open http://localhost:8080
+	@echo log in to airflow with username airflow, password airflow
+	@open http://localhost:8080 # airflow
+	@open http://localhost:8080/admin/metrics/ # airflow
+	@open http://localhost:9102/metrics # statsd-exported metrics
+	@open http://localhost:9090/graph # prometheus
+	@echo log in to grafana with username grafana, password grafana
+	@open http://localhost:3000 # grafana
+	@open http://localhost:8025 # mailhog
 
 .PHONY: dag-log
 dag-log:  # Watch the dag processor manager logs
 	@tail -f ./logs/dag_processor_manager/dag_processor_manager.log
+
+.PHONY: mock_api
+mock_api:  ## start the mock api on internal port 5000, localhost port 8000.
+	@docker run -it -p 8000:5000 mock_api
 
 
 ## Documentation:
