@@ -9,6 +9,7 @@ build: down clean_dags  ## refresh the configs and dags
 	python ./build_configs.py
 	python ./build_dags.py
 	docker-compose build
+	docker-compose build dag-storm # needed because it gets skipped because it's replicas are 0.
 
 .PHONY: build_worst_case
 build_worst_case:

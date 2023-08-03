@@ -87,4 +87,5 @@ if __name__ == "__main__":
     # main(40, include_external_facts=False)  # max for worst with .1 sec delay
     # main(1200, include_external_facts=False)  # max for worst with no delay
     #main(2200, include_external_facts=False) # took 4:23 to load these.   But no errors, and risk is spread out.
-    main(5000)
+    # main(5000)
+    main(50)

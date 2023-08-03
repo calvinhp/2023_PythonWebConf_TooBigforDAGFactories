@@ -5,3 +5,8 @@ But the files here need to be:
  - have their id set to null in order to be created.
 
 The setup script will post all the *.json files in this directory to the Grafana API.
+
+
+TODO: add a script to export dashboards from Grafana to this directory.
+TODO: functionality to patch the downloaded dashboards to have the {dashboard: {}} wrapper and id: null
+

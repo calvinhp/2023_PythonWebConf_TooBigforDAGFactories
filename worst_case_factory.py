@@ -48,6 +48,7 @@ for config_file in config_root.glob("**/*.json"):
         import time
 
         time.sleep(0.10)
+        
         # with this delay, I max out at about 40 configs, 80 dags
         # without it, this maxes at about 1200 configs, 2400 dags
         """
