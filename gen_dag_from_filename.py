@@ -287,13 +287,23 @@ with DAG(
         "retry_delay": timedelta(minutes=1),
     },
 ) as dag:
+    # try:
+    #     pinchpoint_pool = get_pool("pinchpoint")
+    #
+    # except :  # (PoolNotFound, SqlAlchemyOperationalError, Sqlite3OperationalError, Exception) as missing_pool:
+    #     pinchpoint_pool = create_pool(
+    #         name="pinchpoint",
+    #         slots=1,
+    #         description="single task pinchpoint pool",
+    #     )
+
     start = BashOperator(
         task_id="start",
         bash_command="date",
     )
     preconditions = BashOperator(
         task_id="preconditions",
-        bash_command="date",
+        bash_command="airflow pools set pinchpoint 1 'pinchpoint'",
     )
     end = BashOperator(
         task_id="end-cleanup",
@@ -331,5 +341,8 @@ with DAG(
         for step in steps:
             step.set_upstream(last_step)
             last_step = step
+
+        # limit the last step to the pinchpoint pool
+        step.pool = "pinchpoint"
 
         step >> end
